@@ -14,7 +14,7 @@ export default function Labs() {
       <h1>Ghanashyam Vagale Srinivas</h1>
       <h1>Section 03</h1>
       <p>
-        Link to my <a id="wd-github" href="https://github.com/GhanashyamVagale/kanbas-react-web-app">
+        Link to my <a id="wd-github" href="https://github.com/GhanashyamVagale/Kanbas-with-quizzes">
           <strong>GitHub</strong>
         </a> repository.
       </p>
