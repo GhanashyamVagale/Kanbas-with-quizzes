@@ -12,12 +12,14 @@ export default function QuestionMaker({
   question: initialQuestion,
   quiz,
   onPointsChange,
+  onQuestionChange,
   onCanceled,
   currentId,
 }: {
   question: any;
   quiz: any;
   onPointsChange: any;
+  onQuestionChange: any;
   onCanceled: any;
   currentId: any;
 }) {
@@ -40,8 +42,10 @@ export default function QuestionMaker({
           { text: "True", isCorrect: false },
           { text: "False", isCorrect: false },
         ]);
-      } else {
+      } else if (questionType === "MULTIPLE") {
         setAnswers([...answers, { text: "", isCorrect: false }]);
+      } else {
+        setAnswers([...answers, { text: "", isCorrect: true }]);
       }
     }
   };
@@ -93,30 +97,48 @@ export default function QuestionMaker({
 
   const dispatch = useDispatch();
   const handleSave = async (e: any) => {
-    const formattedQuestion = {
-      ...question,
-      choices: answers.map((answer: any) => ({
-        ...answer,
-        answer: answer.text.trim(),
-        correct: answer.isCorrect,
-      })),
-    };
+    let formattedQuestion;
+    if (questionType === "FILLIN") {
+      formattedQuestion = {
+        ...question,
+        choices: answers.map((answer: any) => ({
+          ...answer,
+          answer: answer.text.trim(),
+          correct: true,
+        })),
+      };
+    } else {
+      formattedQuestion = {
+        ...question,
+        choices: answers.map((answer: any) => ({
+          ...answer,
+          answer: answer.text.trim(),
+          correct: answer.isCorrect,
+        })),
+      };
+    }
     console.log("First Formatted Question", formattedQuestion);
     if (initialQuestion.currentid == currentId) {
-      console.log("Question is empty");
       await quizzesClient.createQuestionForQuiz(
         qid as string,
         formattedQuestion
       );
       dispatch(addQuestion(formattedQuestion));
       const newPoints = currentQuiz.points + parseInt(formattedQuestion.points);
+      const questionsNumber = quiz.numberOfQuestions + 1;
       onPointsChange(newPoints);
+      onQuestionChange(questionsNumber, newPoints);
       await quizzesClient.updateQuiz({
         ...quiz,
         points: newPoints,
-        numberOfQuestions: quiz.numberOfQuestions + 1,
+        numberOfQuestions: questionsNumber,
       });
-      setCurrentQuiz({ ...currentQuiz, points: newPoints });
+      setCurrentQuiz({
+        ...currentQuiz,
+        points: newPoints,
+        numberOfQuestions: questionsNumber,
+      });
+      console.log(questionsNumber);
       initialQuestion.currentid = "";
     } else {
       console.log("Formatted Question", formattedQuestion);
